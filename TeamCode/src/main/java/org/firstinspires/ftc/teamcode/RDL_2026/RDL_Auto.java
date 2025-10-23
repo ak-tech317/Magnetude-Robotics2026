@@ -11,15 +11,12 @@ import org.firstinspires.ftc.teamcode.hardware;
 public class RDL_Auto extends LinearOpMode {
 
     hardware hardware = new hardware();
+    initialize initialize = new initialize();
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize robot hardware
-        initWheel();
-        initArm();
-        setWheelDirections();
-        setArmDirection();
-        setZeroPowerBehavior();
+        initialize.init(hardwareMap);
 
         // Telemetry to show that robot initialized correctly
         telemetry.addLine("Robot is initialized and ready");
@@ -39,55 +36,5 @@ public class RDL_Auto extends LinearOpMode {
             telemetry.addLine("Autonomous complete.");
             telemetry.update();
         }
-    }
-
-    // --- Initialization Methods ---
-    private void initWheel() {
-        try {
-            hardware.frontRightWheel = hardwareMap.get(DcMotor.class, "frontRightWheel");
-            hardware.frontLeftWheel = hardwareMap.get(DcMotor.class, "frontLEftWheel");
-            hardware.backRightWheel = hardwareMap.get(DcMotor.class, "backRightWheel");
-            hardware.backLeftWheel = hardwareMap.get(DcMotor.class, "backLeftWheel");
-        } catch (Exception e) {
-            telemetry.addData("Error initializing wheels: ", e.getMessage());
-            telemetry.update();
-        }
-    }
-
-    private void initArm() {
-        try {
-            hardware.frontClaw = hardwareMap.get(DcMotor.class, "frontClaw");
-            hardware.backClaw = hardwareMap.get(DcMotor.class, "backClaw");
-            hardware.armMotor = hardwareMap.get(DcMotor.class, "armMotor");
-        } catch (Exception e) {
-            telemetry.addData("Error initializing arm: ", e.getMessage());
-            telemetry.update();
-        }
-    }
-
-    private void setWheelDirections() {
-        hardware.frontLeftWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.frontRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.backLeftWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.backRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
-
-    private void setArmDirection() {
-        hardware.frontClaw.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.backClaw.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
-
-    private void setZeroPowerBehavior() {
-        // Make all wheels brake when power is zero
-        hardware.frontLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hardware.frontRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hardware.backLeftWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hardware.backRightWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // Optionally, brake the arm and claw as well
-        hardware.armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hardware.frontClaw.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        hardware.backClaw.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 }

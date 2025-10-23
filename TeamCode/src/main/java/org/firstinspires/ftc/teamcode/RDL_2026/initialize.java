@@ -18,7 +18,7 @@ public class initialize {
         try {
             // Map all hardware from the configuration
             hardware.frontRightWheel = hwMap.get(DcMotor.class, "frontRightWheel");
-            hardware.frontLeftWheel = hwMap.get(DcMotor.class, "frontLEftWheel");
+            hardware.frontLeftWheel = hwMap.get(DcMotor.class, "frontLeftWheel");
             hardware.backRightWheel = hwMap.get(DcMotor.class, "backRightWheel");
             hardware.backLeftWheel = hwMap.get(DcMotor.class, "backLeftWheel");
 

@@ -9,13 +9,11 @@ import org.firstinspires.ftc.teamcode.hardware;
 @TeleOp(name="RDL Teleop", group = "RDL")
 public class RDL_Teleop extends LinearOpMode{
     hardware hardware = new hardware();
+    initialize initialize = new initialize();
     private final double threshold = 0.2;
     @Override
     public void runOpMode() throws InterruptedException {
-        initWheel();
-        initArm();
-        setWheelDirections();
-        setArmDirection();
+        initialize.init(hardwareMap);
 
         while(opModeInInit()){
             telemetry.addLine("Robot is initialized");
@@ -32,51 +30,12 @@ public class RDL_Teleop extends LinearOpMode{
 
 
 
-
-    //INITIALIZATION
-    public void initWheel(){
-        try {
-            hardware.frontRightWheel = hardwareMap.get(DcMotor.class, "frontRightWheel");
-            hardware.frontLeftWheel = hardwareMap.get(DcMotor.class, "frontLEftWheel");
-            hardware.backRightWheel = hardwareMap.get(DcMotor.class, "backRightWheel");
-            hardware.backLeftWheel = hardwareMap.get(DcMotor.class, "backLeftWheel");
-        }catch(Exception e){
-            telemetry.addData("Error occurred initializing the wheel:", e);
-            telemetry.update();
-        }
-    }
-    public void setWheelDirections(){
-        hardware.frontLeftWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.frontRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.backLeftWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.backRightWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
-    public void initArm(){
-        try{
-            hardware.frontClaw = hardwareMap.get(DcMotor.class, "frontClaw");
-            hardware.backClaw = hardwareMap.get(DcMotor.class, "backClaw");
-            hardware.armMotor = hardwareMap.get(DcMotor.class, "armMotor");
-
-        } catch(Exception e){
-            telemetry.addData("Error occurred initializing the arm:", e);
-            telemetry.update();
-        }
-    }
-    public void setArmDirection(){
-        hardware.frontClaw.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.backClaw.setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware.armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
     private void driveCommand(double vertical, double horizontal, double turn){
         hardware.frontRightWheel.setPower(vertical+horizontal+turn);
         hardware.frontLeftWheel.setPower(vertical+horizontal+turn);
         hardware.backRightWheel.setPower(vertical+horizontal+turn);
         hardware.backLeftWheel.setPower(vertical+horizontal+turn);
     }
-
-
-
-
 
     //CONTROLS
     private void driveControls(){
