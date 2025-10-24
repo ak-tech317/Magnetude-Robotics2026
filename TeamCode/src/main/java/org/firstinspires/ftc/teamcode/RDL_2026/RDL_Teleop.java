@@ -27,24 +27,15 @@ public class RDL_Teleop extends LinearOpMode{
         }
     }
 
-
-
-
-    private void driveCommand(double vertical, double horizontal, double turn){
+    private void driveControls(){
+        double vertical = Math.abs(gamepad1.right_stick_y) > threshold ? gamepad1.right_stick_y : 0;
+        double horizontal = Math.abs(gamepad1.right_stick_x) > threshold ? gamepad1.right_stick_y: 0;
+        double turn = Math.abs(gamepad1.left_stick_x) > threshold ? gamepad1.left_stick_x: 0;
         hardware.frontRightWheel.setPower(vertical+horizontal+turn);
         hardware.frontLeftWheel.setPower(vertical+horizontal+turn);
         hardware.backRightWheel.setPower(vertical+horizontal+turn);
         hardware.backLeftWheel.setPower(vertical+horizontal+turn);
     }
-
-    //CONTROLS
-    private void driveControls(){
-        double verticalControls = Math.abs(gamepad1.right_stick_y) > threshold ? gamepad1.right_stick_y : 0;
-        double horizontalControls = Math.abs(gamepad1.right_stick_x) > threshold ? gamepad1.right_stick_y: 0;
-        double turnControls = Math.abs(gamepad1.left_stick_x) > threshold ? gamepad1.left_stick_x: 0;
-        driveCommand(verticalControls, horizontalControls, turnControls);
-    }
-
     private void armControl(){
         double armStop = 0.1;
         double armPower = Math.abs(gamepad1.left_stick_y) > threshold ? gamepad1.left_stick_y : armStop;
