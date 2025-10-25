@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.RDL_2026;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.hardware;
 
@@ -10,47 +8,36 @@ import org.firstinspires.ftc.teamcode.hardware;
 public class RDL_Teleop extends LinearOpMode{
     //all the hardware and initialization
     hardware hardware = new hardware();
-    initialize initialize = new initialize();
-    //INPUTS
-    //drive
-    double verticalControl = gamepad1.right_stick_y;
-    double strafeControl = gamepad1.right_stick_x;
-    double turnControl = gamepad1.left_stick_x;
-    //arm and claw
-    double armControl = gamepad1.left_stick_y;
-    boolean intakeButton = gamepad1.dpad_up;
-    boolean outputButton = gamepad1.dpad_down;
-
-
     private final double threshold = 0.2;
     @Override
-    public void runOpMode() throws InterruptedException {
-        initialize.init(hardwareMap);
-
+    public void runOpMode() {
+        hardware.init(hardwareMap);
+        hardware.setDirection();
         while(opModeInInit()){
             telemetry.addLine("Robot is initialized");
             telemetry.update();
         }
         waitForStart();
         while(opModeIsActive()){
-            driveControls();
-            armControl();
-            clawControl();
+                driveControls();
+                armControl();
+                clawControl();
+
         }
     }
 
     private void driveControls(){
-        double vertical = Math.abs(verticalControl) > threshold ? verticalControl : 0;
-        double horizontal = Math.abs(strafeControl) > threshold ? strafeControl: 0;
-        double turn = Math.abs(turnControl) > threshold ? turnControl: 0;
+        double vertical = Math.abs(gamepad1.right_stick_y) > threshold ? gamepad1.right_stick_y : 0;
+        double horizontal = Math.abs(gamepad1.right_stick_x) > threshold ? gamepad1.right_stick_x: 0;
+        double turn = Math.abs(gamepad1.left_stick_x) > threshold ? gamepad1.left_stick_x: 0;
         hardware.frontRightWheel.setPower(vertical+horizontal+turn);
         hardware.frontLeftWheel.setPower(vertical+horizontal+turn);
         hardware.backRightWheel.setPower(vertical+horizontal+turn);
         hardware.backLeftWheel.setPower(vertical+horizontal+turn);
     }
     private void armControl(){
-        double armStop = 0.1;
-        double armPower = Math.abs(armControl) > threshold ? armControl : armStop;
+        double armStop = 0.0;
+        double armPower = Math.abs(gamepad1.left_stick_y) > threshold ? gamepad1.left_stick_y : armStop;
         hardware.armMotor.setPower(armPower);
     }
     private void clawControl(){
@@ -58,10 +45,10 @@ public class RDL_Teleop extends LinearOpMode{
         int[] intakePowerLevel = {-1, 1};
         int[] outtakePowerLevel = {1, -1};
 
-        if(intakeButton){
+        if(gamepad1.dpad_up){
             hardware.backClaw.setPower(intakePowerLevel[0]);
             hardware.frontClaw.setPower(intakePowerLevel[1]);
-        }else if(outputButton){
+        }else if(gamepad1.dpad_down){
             hardware.backClaw.setPower(outtakePowerLevel[0]);
             hardware.frontClaw.setPower(outtakePowerLevel[1]);
         }else{

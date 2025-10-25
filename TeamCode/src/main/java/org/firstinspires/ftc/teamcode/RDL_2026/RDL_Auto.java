@@ -11,12 +11,11 @@ import org.firstinspires.ftc.teamcode.hardware;
 public class RDL_Auto extends LinearOpMode {
 
     hardware hardware = new hardware();
-    initialize initialize = new initialize();
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize robot hardware
-        initialize.init(hardwareMap);
+        hardware.init(hardwareMap);
 
         // Telemetry to show that robot initialized correctly
         telemetry.addLine("Robot is initialized and ready");
