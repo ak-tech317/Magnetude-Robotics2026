@@ -1,17 +1,17 @@
-package org.firstinspires.ftc.teamcode.RDL_2026;
+package org.firstinspires.ftc.teamcode.FTC_2026;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="RDL Autonomous", group="RDL")
-public class RDL_Auto extends LinearOpMode {
+@Autonomous(name="FTC Autonomous", group="FTC")
+public class FTC_Auto extends LinearOpMode {
 
-    RDLHardware RDLHardware = new RDLHardware();
+    FTCHardware FTCHardware = new FTCHardware();
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize robot hardware
-        RDLHardware.init(hardwareMap);
+        FTCHardware.init(hardwareMap);
 
         // Telemetry to show that robot initialized correctly
         telemetry.addLine("Robot is initialized and ready");
@@ -25,14 +25,7 @@ public class RDL_Auto extends LinearOpMode {
             telemetry.addLine("Autonomous running...");
             telemetry.update();
 
-
-            telemetry.clear();
-            telemetry.addData("Front right wheel TPR: ", RDLHardware.frontRightWheel.getMotorType().getTicksPerRev());
-            telemetry.addData("Front left wheel TPR: ", RDLHardware.frontLeftWheel.getMotorType().getTicksPerRev());
-            telemetry.addData("Back right wheel TPR: ", RDLHardware.backRightWheel.getMotorType().getTicksPerRev());
-            telemetry.addData("Back left wheel TPR: ", RDLHardware.backLeftWheel.getMotorType().getTicksPerRev());
-            telemetry.update();
-            // Wait
+            // Example placeholder wait (replace later)
             sleep(1000);
 
             telemetry.addLine("Autonomous complete.");
