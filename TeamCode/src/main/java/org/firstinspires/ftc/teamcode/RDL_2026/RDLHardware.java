@@ -18,6 +18,7 @@ public class RDLHardware {
     //Arm
     public DcMotor backClaw;
     public DcMotor frontClaw;
+    public DcMotor backestClaw;
     public DcMotor armMotor;
 
 
@@ -28,6 +29,7 @@ public class RDLHardware {
         backRightWheel = hwMap.get(DcMotor.class, "backRightWheel");
 
         backClaw = hwMap.get(DcMotor.class, "backClaw");
+        backestClaw = hwMap.get(DcMotor.class, "backestClaw");
         frontClaw = hwMap.get(DcMotor.class, "frontClaw");
         armMotor = hwMap.get(DcMotor.class, "armMotor");
 
@@ -46,6 +48,7 @@ public class RDLHardware {
     private void setArmDirection() {
         frontClaw.setDirection(DcMotorSimple.Direction.FORWARD);
         backClaw.setDirection(DcMotorSimple.Direction.FORWARD);
+        backestClaw.setDirection(DcMotorSimple.Direction.FORWARD);
         armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
@@ -58,6 +61,7 @@ public class RDLHardware {
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontClaw.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backClaw.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backestClaw.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     // Optional: stop all motors
@@ -69,5 +73,6 @@ public class RDLHardware {
         armMotor.setPower(0);
         frontClaw.setPower(0);
         backClaw.setPower(0);
+        backestClaw.setPower(0);
     }
 }
