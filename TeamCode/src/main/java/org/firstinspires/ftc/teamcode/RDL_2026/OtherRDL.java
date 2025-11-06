@@ -46,28 +46,34 @@ public class OtherRDL extends LinearOpMode{
     }
     private void clawControl(){
         //First number is back motor, second is front
-        double[] claw1pos = {0.0, 1.0};
-        double[] claw2pos = {0.0, 1.0};
+        double[] claw1pos = {0.5, 0.0};
+        double[] claw2pos = {0.5, 0.0};
 
         boolean apressy = gamepad1.aWasPressed();
         int a = 0;
+        int b = 0;
         boolean bpressy = gamepad1.bWasPressed();
 
         if(gamepad1.a){
-            if (gamepad1.a && apressy && (a == 0)) {
+            if (apressy && (a == 0)) {
                 otherRDLhardware.backClaw.setPosition(claw1pos[0]);
                 a = 1;
             }
-            if (gamepad1.a && apressy && (a == 1)) {
-                otherRDLhardware.backClaw.setPosition(claw1pos[0]);
+            if (apressy && (a == 1)) {
+                otherRDLhardware.backClaw.setPosition(claw1pos[1]);
                 a = 0;
             }
         }
 
         if(gamepad1.y) {
-            otherRDLhardware.frontClaw.setPosition(claw2pos[0]);
-        } else if (gamepad1.y) {
-            otherRDLhardware.frontClaw.setPosition(claw2pos[1]);
+            if (bpressy && (b == 0)) {
+                otherRDLhardware.frontClaw.setPosition(claw1pos[0]);
+                b = 1;
+            }
+            if (bpressy && (b == 1)) {
+                otherRDLhardware.frontClaw.setPosition(claw1pos[1]);
+                b = 0;
+            }
         }
 
     }
