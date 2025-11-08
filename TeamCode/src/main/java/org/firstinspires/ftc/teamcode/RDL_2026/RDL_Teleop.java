@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class RDL_Teleop extends LinearOpMode{
     //all the hardware and initialization
     RDLHardware RDLHardware = new RDLHardware();
-    private final double threshold = 0.2;
+
     @Override
     public void runOpMode() {
         RDLHardware.init(hardwareMap);
@@ -24,21 +24,22 @@ public class RDL_Teleop extends LinearOpMode{
     }
 
     private void driveControls(){
-        double vertical = Math.abs(gamepad1.right_stick_y) > threshold ? -gamepad1.right_stick_y : 0;
-        double turn = Math.abs(gamepad1.right_stick_x) > threshold ? gamepad1.right_stick_x: 0;
+        double threshold = 0.2;
+        double vertical = Math.abs(gamepad1.right_stick_y) > threshold ? 0.8* -gamepad1.right_stick_y : 0;
+        double turn = Math.abs(gamepad1.right_stick_x) > threshold ? 0.5* gamepad1.right_stick_x: 0;
         RDLHardware.frontRightWheel.setPower(vertical-turn);
         RDLHardware.frontLeftWheel.setPower(vertical+turn);
-        RDLHardware.backRightWheel.setPower(vertical+turn);
-        RDLHardware.backLeftWheel.setPower(vertical-turn);
+        RDLHardware.backRightWheel.setPower(vertical-turn);
+        RDLHardware.backLeftWheel.setPower(vertical+turn);
     }
     private void armControl(){
-        double armStop = -0.06;
-        double armPower = 0.5;
+        double armStop = 0.05;
+        double armPower = 0.6;
 
         if(gamepad1.right_trigger > 0){
-            RDLHardware.armMotor.setPower(armPower);
-        }else if(gamepad1.left_trigger > 0){
             RDLHardware.armMotor.setPower(-armPower);
+        }else if(gamepad1.left_trigger > 0){
+            RDLHardware.armMotor.setPower(0.5 * armPower);
         }else{
             RDLHardware.armMotor.setPower(armStop);
         }
