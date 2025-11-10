@@ -8,74 +8,73 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class RDL_Auto extends LinearOpMode {
 
     RDLHardware RDLHardware = new RDLHardware();
+    double ticksPerFoot = 140;
+    double ticksPer360 = 1095;
+    double ticksPerDegree = ticksPer360/360;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Initialize robot hardware
         RDLHardware.init(hardwareMap);
 
-        double wheelDiamater = 3;
-        double wheelCircumferance = wheelDiamater * Math.PI;
-        double FRTPR = RDLHardware.frontRightWheel.getMotorType().getTicksPerRev();
-        double FLTPR = RDLHardware.frontLeftWheel.getMotorType().getTicksPerRev();
-        double BRTPR = RDLHardware.backRightWheel.getMotorType().getTicksPerRev();
-        double BLTPR = RDLHardware.backLeftWheel.getMotorType().getTicksPerRev();
-        double ticksPerInch = (FRTPR + FLTPR + BRTPR + BLTPR) / 4.0 / wheelCircumferance;
+        telemetry.addLine("Initialized and ready");
+        telemetry.update();
 
-
-        // Wait for the game to start (driver presses PLAY)
+        // Wait for start
         waitForStart();
-        while (opModeInInit()) {
-            telemetry.addData("Front right wheel TPR: ", FRTPR);
-            telemetry.addData("Front left wheel TPR: ", FLTPR);
-            telemetry.addData("Back right wheel TPR: ", BRTPR);
-            telemetry.addData("Back left wheel TPR: ", BLTPR);
-            telemetry.update();
-        }
-        while (opModeIsActive()) {
-            // Add your autonomous movement or sequence logic here later
-            telemetry.addLine("Autonomous running...");
+
+        if (opModeIsActive()) {
+            telemetry.addLine("Autonomous started...");
             telemetry.update();
 
-            movement(ticksPerInch, 12, 0.5, "forward");
-            // Wait
-            sleep(1000);
+            // Move forward 12 inches
+            movement(1, 0.2, "forward");
+            movement(1, 0.2, "backward");
+
+            // Turn tests
+            turn(360, 0.1, "right");
+            turn(360, 0.1, "left");
 
             telemetry.addLine("Autonomous complete.");
             telemetry.update();
+            sleep(1000);
         }
-
     }
 
-    private void movement(double ticksPerInch, double distance, double speed, String direction) {
-        //Find how far we want to move
-        double ticks = distance * ticksPerInch;
-        RDLHardware.frontRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RDLHardware.frontLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RDLHardware.backRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RDLHardware.backLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    private void movement(double distance, double speed, String direction) {
+        double ticks = distance * ticksPerFoot;
+        int target = (int) ticks;
 
-        RDLHardware.frontRightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RDLHardware.frontLeftWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RDLHardware.backRightWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RDLHardware.backLeftWheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        telemetry.addData("Target Ticks: ", target);
+        telemetry.update();
 
-        if (direction.equalsIgnoreCase("forward")) {
-            RDLHardware.frontRightWheel.setTargetPosition((int) ticks);
-            RDLHardware.frontLeftWheel.setTargetPosition((int) ticks);
-            RDLHardware.backRightWheel.setTargetPosition((int) ticks);
-            RDLHardware.backLeftWheel.setTargetPosition((int) ticks);
-        } else if (direction.equalsIgnoreCase("backward")) {
-            RDLHardware.frontRightWheel.setTargetPosition(-(int) ticks);
-            RDLHardware.frontLeftWheel.setTargetPosition(-(int) ticks);
-            RDLHardware.backRightWheel.setTargetPosition(-(int) ticks);
-            RDLHardware.backLeftWheel.setTargetPosition(-(int) ticks);
+        // Reset encoders once before move
+        resetEncoders();
+
+        // Set target positions
+        if(direction.equalsIgnoreCase("forward")) {
+            RDLHardware.frontRightWheel.setTargetPosition(target);
+            RDLHardware.frontLeftWheel.setTargetPosition(target);
+            RDLHardware.backRightWheel.setTargetPosition(target);
+            RDLHardware.backLeftWheel.setTargetPosition(target);
+        }else if(direction.equalsIgnoreCase("backward")) {
+            RDLHardware.frontRightWheel.setTargetPosition(-target);
+            RDLHardware.frontLeftWheel.setTargetPosition(-target);
+            RDLHardware.backRightWheel.setTargetPosition(-target);
+            RDLHardware.backLeftWheel.setTargetPosition(-target);
         }
 
-        RDLHardware.frontRightWheel.setPower(speed);
-        RDLHardware.frontLeftWheel.setPower(speed);
-        RDLHardware.backRightWheel.setPower(speed);
-        RDLHardware.backLeftWheel.setPower(speed);
+        // Set mode to run to position
+        setAllModes(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Power all wheels evenly
+        RDLHardware.frontRightWheel.setPower(Math.abs(speed));
+        RDLHardware.frontLeftWheel.setPower(Math.abs(speed));
+        RDLHardware.backRightWheel.setPower(Math.abs(speed));
+        RDLHardware.backLeftWheel.setPower(Math.abs(speed));
+
+        // Timeout safeguard
+        double startTime = getRuntime();
 
         while (opModeIsActive() &&
                 (RDLHardware.frontRightWheel.isBusy() ||
@@ -83,20 +82,135 @@ public class RDL_Auto extends LinearOpMode {
                         RDLHardware.backRightWheel.isBusy() ||
                         RDLHardware.backLeftWheel.isBusy())) {
 
-            telemetry.addData("Status", "Moving...");
+            telemetry.addData("Moving", "Direction: %s | Target: %d ticks", direction, target);
             telemetry.addData("FR pos", RDLHardware.frontRightWheel.getCurrentPosition());
+            telemetry.addData("FL pos", RDLHardware.frontLeftWheel.getCurrentPosition());
+            telemetry.addData("BR pos", RDLHardware.backRightWheel.getCurrentPosition());
+            telemetry.addData("BL pos", RDLHardware.backLeftWheel.getCurrentPosition());
             telemetry.update();
 
-        }
-        RDLHardware.frontRightWheel.setPower(0);
-        RDLHardware.frontLeftWheel.setPower(0);
-        RDLHardware.backRightWheel.setPower(0);
-        RDLHardware.backLeftWheel.setPower(0);
+            // keep your original break condition exactly as written
+            if (Math.abs(RDLHardware.frontRightWheel.getCurrentPosition()) >= target ||
+                    Math.abs(RDLHardware.frontLeftWheel.getCurrentPosition()) >= target ||
+                    Math.abs(RDLHardware.backRightWheel.getCurrentPosition()) >= target ||
+                    Math.abs(RDLHardware.backLeftWheel.getCurrentPosition()) >= target) {
+                break;
+            }
 
+            // timeout fail-safe
+            if (getRuntime() - startTime > 5) break;
+        }
+
+        stopAll();
+        setAllModes(DcMotor.RunMode.RUN_USING_ENCODER);
+        sleep(500);
+    }
+
+    private void turn(double degrees, double speed, String direction) {
+        double ticksPer360 = 1095;
+        double ticksPerDegree = ticksPer360 / 360.0;
+        int tickTarget = (int)(degrees * ticksPerDegree);
+
+        resetEncoders();
+
+        // Set target positions depending on direction
+        if (direction.equalsIgnoreCase("right")) {
+            RDLHardware.frontRightWheel.setTargetPosition(-tickTarget);
+            RDLHardware.backRightWheel.setTargetPosition(-tickTarget);
+            RDLHardware.frontLeftWheel.setTargetPosition(tickTarget);
+            RDLHardware.backLeftWheel.setTargetPosition(tickTarget);
+        } else if (direction.equalsIgnoreCase("left")) {
+            RDLHardware.frontRightWheel.setTargetPosition(tickTarget);
+            RDLHardware.backRightWheel.setTargetPosition(tickTarget);
+            RDLHardware.frontLeftWheel.setTargetPosition(-tickTarget);
+            RDLHardware.backLeftWheel.setTargetPosition(-tickTarget);
+        } else {
+            telemetry.addLine("Invalid direction (use 'left' or 'right')");
+            telemetry.update();
+            return;
+        }
+
+        // Set to run to position
+        setAllModes(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Apply your intentional power balance
+        RDLHardware.frontRightWheel.setPower(1.5 * speed);
+        RDLHardware.frontLeftWheel.setPower(1.5 * speed);
+        RDLHardware.backRightWheel.setPower(speed);
+        RDLHardware.backLeftWheel.setPower(speed);
+
+        // Monitor encoder progress with a clean stop condition
+        while (true) {
+            int FR = Math.abs(RDLHardware.frontRightWheel.getCurrentPosition());
+            int FL = Math.abs(RDLHardware.frontLeftWheel.getCurrentPosition());
+            int BR = Math.abs(RDLHardware.backRightWheel.getCurrentPosition());
+            int BL = Math.abs(RDLHardware.backLeftWheel.getCurrentPosition());
+
+            telemetry.addData("Turning", "%s %.1f°", direction, degrees);
+            telemetry.addData("Targets", "Tick Target: %d", tickTarget);
+            telemetry.addData("FR", FR);
+            telemetry.addData("FL", FL);
+            telemetry.addData("BR", BR);
+            telemetry.addData("BL", BL);
+            telemetry.update();
+
+            // Break if average encoder position reaches target
+            double avg = (FR + FL) / 2.0;
+            if (avg - 5 >= tickTarget) break;
+
+            // Optional fail-safe timeout
+            if (!RDLHardware.frontRightWheel.isBusy() && !RDLHardware.frontLeftWheel.isBusy() &&
+                !RDLHardware.backRightWheel.isBusy() && !RDLHardware.backLeftWheel.isBusy())
+                break;
+        }
+
+        stopAll();
+        setAllModes(DcMotor.RunMode.RUN_USING_ENCODER);
+        sleep(300);
+    }
+
+
+
+    // --- utility methods ---
+    private void resetEncoders() {
+        // Stop and reset all encoders
+        RDLHardware.frontRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDLHardware.frontLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDLHardware.backRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDLHardware.backLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // Wait briefly to let the hardware sync
+        sleep(100);
+
+        // Set to RUN_USING_ENCODER so encoders start counting again
         RDLHardware.frontRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RDLHardware.frontLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RDLHardware.backRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RDLHardware.backLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Optional sanity check (shows encoder counts in telemetry)
+        telemetry.addData("Encoders Reset",
+                "FR:%d FL:%d BR:%d BL:%d",
+                RDLHardware.frontRightWheel.getCurrentPosition(),
+                RDLHardware.frontLeftWheel.getCurrentPosition(),
+                RDLHardware.backRightWheel.getCurrentPosition(),
+                RDLHardware.backLeftWheel.getCurrentPosition());
+        telemetry.update();
+        sleep(1000);
+    }
+
+
+    private void setAllModes(DcMotor.RunMode mode) {
+        RDLHardware.frontRightWheel.setMode(mode);
+        RDLHardware.frontLeftWheel.setMode(mode);
+        RDLHardware.backRightWheel.setMode(mode);
+        RDLHardware.backLeftWheel.setMode(mode);
+    }
+
+    private void stopAll() {
+        RDLHardware.frontRightWheel.setPower(0);
+        RDLHardware.frontLeftWheel.setPower(0);
+        RDLHardware.backRightWheel.setPower(0);
+        RDLHardware.backLeftWheel.setPower(0);
     }
 }

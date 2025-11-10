@@ -27,10 +27,10 @@ public class RDL_Teleop extends LinearOpMode{
         double threshold = 0.2;
         double vertical = Math.abs(gamepad1.right_stick_y) > threshold ? 0.8* -gamepad1.right_stick_y : 0;
         double turn = Math.abs(gamepad1.right_stick_x) > threshold ? 0.5* gamepad1.right_stick_x: 0;
-        RDLHardware.frontRightWheel.setPower(vertical-turn);
-        RDLHardware.frontLeftWheel.setPower(vertical+turn);
-        RDLHardware.backRightWheel.setPower(vertical-turn);
-        RDLHardware.backLeftWheel.setPower(vertical+turn);
+        RDLHardware.frontRightWheel.setPower(vertical-(1.5 * turn));
+        RDLHardware.frontLeftWheel.setPower(vertical+(1.5 * turn));
+        RDLHardware.backRightWheel.setPower(vertical-(1.0 * turn));
+        RDLHardware.backLeftWheel.setPower(vertical+(1.0 * turn));
     }
     private void armControl(){
         double armStop = 0.05;
