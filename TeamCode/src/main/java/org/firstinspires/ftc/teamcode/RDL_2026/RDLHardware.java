@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RDL_2026;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class RDLHardware {
     //FTC
@@ -20,6 +21,8 @@ public class RDLHardware {
     public DcMotor frontClaw;
     public DcMotor backestClaw;
     public DcMotor armMotor;
+
+    public Servo armHolder;
 
 
     public void init(HardwareMap hwMap) {

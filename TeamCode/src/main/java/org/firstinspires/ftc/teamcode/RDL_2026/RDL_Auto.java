@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="RDL Autonomous", group="RDL")
 public class RDL_Auto extends LinearOpMode {
-    private ElapsedTime armRuntime = new ElapsedTime();
-    private ElapsedTime clawRuntime = new ElapsedTime();
+    private final ElapsedTime gameRuntime = new ElapsedTime();
+    private final ElapsedTime armRuntime = new ElapsedTime();
+    private final ElapsedTime clawRuntime = new ElapsedTime();
     RDLHardware RDLHardware = new RDLHardware();
     double ticksPerFoot = 140;
     double ticksPer360 = 1095;
@@ -16,27 +17,54 @@ public class RDL_Auto extends LinearOpMode {
 
     double[] intakePowerLevel = {1, -1, 1};
     double[] outtakePowerLevel = {-1, 1, -1};
+    double armUpTime = 0.8;
+    double armDownTime = 1.5;
+    double armHold = 0.4;
 
     @Override
     public void runOpMode() throws InterruptedException {
         RDLHardware.init(hardwareMap);
-        telemetry.addLine("Initialized and ready");
-        telemetry.update();
+        while(opModeInInit()){
+            armRuntime.reset();
+            clawRuntime.reset();
+            gameRuntime.reset();
+            telemetry.addLine("Initialized and ready");
+            telemetry.update();
+        }
         waitForStart();
-
-        if (opModeIsActive()) {
+        while (opModeIsActive() && gameRuntime.seconds() < 30) {
             telemetry.addLine("Autonomous started...");
             telemetry.update();
-            movement(1, 0.2, "forward");
-            movement(1, 0.2, "backward");
-            turn(360, 0.1, "right");
-            turn(360, 0.1, "left");
+            //Ball collection command
+            ballCollection();
+            sleep(1000);
             telemetry.addLine("Autonomous complete.");
             telemetry.update();
             sleep(1000);
+            break;
         }
     }
 
+    private void extend(){
+        RDLHardware.armHolder.setPosition(0);
+        claw("outtake", 3);
+        arm("up", 1);
+        RDLHardware.armMotor.setPower(armHold);
+        sleep(1000);
+    }
+    private void ballCollection(){
+        arm("up", armUpTime);
+        RDLHardware.armMotor.setPower(armHold);
+        claw("intake", 1.0);
+        movement(1, 0.2, "forward");
+        for(int i = 0; i < 3; i++) {
+            arm("down", armDownTime);
+            movement(0.5, 0.2, "backward");
+            arm("up", armUpTime);
+            movement(0.5, 0.2, "forward");
+
+        }
+    }
     private void movement(double distance, double speed, String direction) {
         int tickTarget = (int) (distance * ticksPerFoot);
         resetEncoders();
@@ -92,8 +120,6 @@ public class RDL_Auto extends LinearOpMode {
     }
 
     private void turn(double degrees, double speed, String direction) {
-        double ticksPer360 = 1095;
-        double ticksPerDegree = ticksPer360 / 360.0;
         int tickTarget = (int)(degrees * ticksPerDegree);
         resetEncoders();
 
@@ -164,14 +190,13 @@ public class RDL_Auto extends LinearOpMode {
                 RDLHardware.backRightWheel.getCurrentPosition(),
                 RDLHardware.backLeftWheel.getCurrentPosition());
         telemetry.update();
-        sleep(1000);
     }
 
     private void claw(String direction,double time) {
+        clawRuntime.reset();
         DcMotor[] claws = {RDLHardware.backClaw, RDLHardware.frontClaw, RDLHardware.backestClaw};
         double[] powers = new double[0];
 
-       while (clawRuntime.seconds() < time) {
            if (direction.equalsIgnoreCase("intake")) {
                powers = intakePowerLevel;
            } else if (direction.equalsIgnoreCase("outtake")) {
@@ -182,17 +207,18 @@ public class RDL_Auto extends LinearOpMode {
                claws[i].setPower(powers[i]);
            }
            clawRuntime.reset();
-       }
     }
 
     private void arm(String direction, double time){
+        armRuntime.reset();
         while (armRuntime.seconds() < time) {
             if (direction.equalsIgnoreCase("up")) {
                 RDLHardware.armMotor.setPower(1);
             } else if (direction.equalsIgnoreCase("down")) {
-                RDLHardware.armMotor.setPower(-1);
+                RDLHardware.armMotor.setPower(0);
             }
         }
+        armRuntime.reset();
     }
     private void setAllModes(DcMotor.RunMode mode) {
         RDLHardware.frontRightWheel.setMode(mode);

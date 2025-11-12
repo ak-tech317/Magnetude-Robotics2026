@@ -34,7 +34,7 @@ public class RDL_Teleop extends LinearOpMode{
     }
     private void armControl(){
         double armStop = 0.05;
-        double armPower = 0.6;
+        double armPower = 1;
 
         if(gamepad1.right_trigger > 0){
             RDLHardware.armMotor.setPower(armPower);
@@ -42,6 +42,10 @@ public class RDL_Teleop extends LinearOpMode{
             RDLHardware.armMotor.setPower(0.5 * -armPower);
         }else{
             RDLHardware.armMotor.setPower(armStop);
+        }
+
+        if(gamepad1.a){
+            RDLHardware.armHolder.setPosition(0);
         }
     }
     private void clawControl(){
