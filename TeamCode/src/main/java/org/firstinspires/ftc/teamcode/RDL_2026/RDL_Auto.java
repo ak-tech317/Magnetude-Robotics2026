@@ -3,14 +3,19 @@ package org.firstinspires.ftc.teamcode.RDL_2026;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="RDL Autonomous", group="RDL")
 public class RDL_Auto extends LinearOpMode {
-
+    private ElapsedTime armRuntime = new ElapsedTime();
+    private ElapsedTime clawRuntime = new ElapsedTime();
     RDLHardware RDLHardware = new RDLHardware();
     double ticksPerFoot = 140;
     double ticksPer360 = 1095;
     double ticksPerDegree = ticksPer360 / 360;
+
+    double[] intakePowerLevel = {1, -1, 1};
+    double[] outtakePowerLevel = {-1, 1, -1};
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -162,6 +167,33 @@ public class RDL_Auto extends LinearOpMode {
         sleep(1000);
     }
 
+    private void claw(String direction,double time) {
+        DcMotor[] claws = {RDLHardware.backClaw, RDLHardware.frontClaw, RDLHardware.backestClaw};
+        double[] powers = new double[0];
+
+       while (clawRuntime.seconds() < time) {
+           if (direction.equalsIgnoreCase("intake")) {
+               powers = intakePowerLevel;
+           } else if (direction.equalsIgnoreCase("outtake")) {
+               powers = outtakePowerLevel;
+           }
+
+           for (int i = 0; i < claws.length; i++) {
+               claws[i].setPower(powers[i]);
+           }
+           clawRuntime.reset();
+       }
+    }
+
+    private void arm(String direction, double time){
+        while (armRuntime.seconds() < time) {
+            if (direction.equalsIgnoreCase("up")) {
+                RDLHardware.armMotor.setPower(1);
+            } else if (direction.equalsIgnoreCase("down")) {
+                RDLHardware.armMotor.setPower(-1);
+            }
+        }
+    }
     private void setAllModes(DcMotor.RunMode mode) {
         RDLHardware.frontRightWheel.setMode(mode);
         RDLHardware.frontLeftWheel.setMode(mode);

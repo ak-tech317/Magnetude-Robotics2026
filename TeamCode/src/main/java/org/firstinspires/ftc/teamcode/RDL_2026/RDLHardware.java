@@ -46,6 +46,7 @@ public class RDLHardware {
     }
 
     private void setArmDirection() {
+        armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         frontClaw.setDirection(DcMotorSimple.Direction.FORWARD);
         backClaw.setDirection(DcMotorSimple.Direction.FORWARD);
         backestClaw.setDirection(DcMotorSimple.Direction.FORWARD);
