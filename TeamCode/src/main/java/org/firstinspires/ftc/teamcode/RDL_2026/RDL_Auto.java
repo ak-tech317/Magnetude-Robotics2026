@@ -11,6 +11,9 @@ public class RDL_Auto extends LinearOpMode {
     private final ElapsedTime armRuntime = new ElapsedTime();
     private final ElapsedTime clawRuntime = new ElapsedTime();
     RDLHardware RDLHardware = new RDLHardware();
+
+    double driveSpeed = 0.5;
+    double turnSpeed = 0.2;
     double ticksPerFoot = 140;
     double ticksPer360 = 1095;
     double ticksPerDegree = ticksPer360 / 360;
@@ -35,16 +38,23 @@ public class RDL_Auto extends LinearOpMode {
         while (opModeIsActive() && gameRuntime.seconds() < 30) {
             telemetry.addLine("Autonomous started...");
             telemetry.update();
+            sleep(500);
+
+            turn(360, turnSpeed, "left");
+            sleep(500);
+            turn(360, turnSpeed, "right");
             //Ball collection command
-            ballCollection();
-            sleep(1000);
+//            extend();
+//            goToWheel();
+//            ballCollection();
+//            goBackToStart();
+
+            //Autonomous complete
+            sleep(500);
             telemetry.addLine("Autonomous complete.");
             telemetry.update();
-            sleep(1000);
-            break;
         }
     }
-
     private void extend(){
         RDLHardware.armHolder.setPosition(0);
         claw("outtake", 3);
@@ -52,18 +62,46 @@ public class RDL_Auto extends LinearOpMode {
         RDLHardware.armMotor.setPower(armHold);
         sleep(1000);
     }
+    private void goToWheel(){
+        //Turn right 90 degrees
+        //Move forward 2 feet
+        //Turn left 90 degrees
+        //Move forward 18 feet
+        //Turn left 90 degrees
+        //Move forward two feet
+        turn(90, turnSpeed, "right");
+        movement(2, driveSpeed, "forward");
+        turn(90, turnSpeed, "left");
+        movement(18, driveSpeed, "forward");
+        turn(90, turnSpeed, "left");
+        movement(2, driveSpeed, "forward");
+    }
     private void ballCollection(){
         arm("up", armUpTime);
         RDLHardware.armMotor.setPower(armHold);
         claw("intake", 1.0);
-        movement(1, 0.2, "forward");
+        movement(1, driveSpeed, "forward");
         for(int i = 0; i < 3; i++) {
             arm("down", armDownTime);
-            movement(0.5, 0.2, "backward");
+            movement(0.5, driveSpeed, "backward");
             arm("up", armUpTime);
-            movement(0.5, 0.2, "forward");
+            movement(0.5, driveSpeed, "forward");
 
         }
+    }
+    private void goBackToStart(){
+        //Go backwards two feet
+        //Turn left 90 degrees
+        //Go forward 18 feet
+        //Turn right 90 degrees
+        //Go forward two feet
+        //Spit out the balls
+        movement(2, driveSpeed, "backward");
+        turn(90, turnSpeed, "left");
+        movement(18, driveSpeed, "forward");
+        turn(90, turnSpeed, "right");
+        movement(2, driveSpeed, "forward");
+        claw("outtake", 30 - gameRuntime.seconds());
     }
     private void movement(double distance, double speed, String direction) {
         int tickTarget = (int) (distance * ticksPerFoot);
