@@ -8,14 +8,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name="RDL Autonomous", group="RDL")
 public class RDL_Auto extends LinearOpMode {
     private final ElapsedTime gameRuntime = new ElapsedTime();
+    private final ElapsedTime driveTime = new ElapsedTime();
     private final ElapsedTime armRuntime = new ElapsedTime();
     private final ElapsedTime clawRuntime = new ElapsedTime();
     RDLHardware RDLHardware = new RDLHardware();
 
-    double driveSpeed = 0.5;
-    double turnSpeed = 0.2;
+    double driveSpeed = 0.1;
+
+    double turnSpeed = 0.1;
     double ticksPerFoot = 140;
-    double ticksPer360 = 1095;
+    double ticksPer360 = 1065;
     double ticksPerDegree = ticksPer360 / 360;
 
     double[] intakePowerLevel = {1, -1, 1};
@@ -29,6 +31,7 @@ public class RDL_Auto extends LinearOpMode {
         RDLHardware.init(hardwareMap);
         while(opModeInInit()){
             armRuntime.reset();
+            driveTime.reset();
             clawRuntime.reset();
             gameRuntime.reset();
             telemetry.addLine("Initialized and ready");
@@ -40,14 +43,13 @@ public class RDL_Auto extends LinearOpMode {
             telemetry.update();
             sleep(500);
 
-            turn(360, turnSpeed, "left");
-            sleep(500);
-            turn(360, turnSpeed, "right");
+
             //Ball collection command
-//            extend();
-//            goToWheel();
-//            ballCollection();
-//            goBackToStart();
+            clawRuntime.reset();
+            extend();
+            goToWheel();
+            ballCollection();
+            //goBackToStart();
 
             //Autonomous complete
             sleep(500);
@@ -56,37 +58,45 @@ public class RDL_Auto extends LinearOpMode {
         }
     }
     private void extend(){
-        RDLHardware.armHolder.setPosition(0);
-        claw("outtake", 3);
-        arm("up", 1);
-        RDLHardware.armMotor.setPower(armHold);
+        while(clawRuntime.seconds() < 0.5) {
+            RDLHardware.armHolder.setPower(1);
+        }
+        RDLHardware.armHolder.setPower(0);
+        arm("up", 0.05);
         sleep(1000);
     }
     private void goToWheel(){
-        //Turn right 90 degrees
-        //Move forward 2 feet
-        //Turn left 90 degrees
-        //Move forward 18 feet
-        //Turn left 90 degrees
-        //Move forward two feet
-        turn(90, turnSpeed, "right");
-        movement(2, driveSpeed, "forward");
-        turn(90, turnSpeed, "left");
-        movement(18, driveSpeed, "forward");
-        turn(90, turnSpeed, "left");
-        movement(2, driveSpeed, "forward");
+        boolean forward = true;
+        DcMotor[] claws = {RDLHardware.backClaw, RDLHardware.frontClaw, RDLHardware.backestClaw};
+            for (int i = 0; i < claws.length; i++) {
+                claws[i].setPower(intakePowerLevel[i]);
+            }
+            movement(13, driveSpeed, "forward");
+            sleep(500);
+            turn(90, turnSpeed, "left");
+            sleep(500);
+            movement(2, driveSpeed, "forward");
+        //Move forward 5 feet
+        //Turn left 90
+        //Go forward 2 feet
+
+    }
+    private void wiggle(){
+        driveTime.reset();
+        for(int i = 0; i < 8; i++){
+            turn(5, turnSpeed, "left");
+            turn(5, turnSpeed, "right");
+        }
     }
     private void ballCollection(){
-        arm("up", armUpTime);
-        RDLHardware.armMotor.setPower(armHold);
         claw("intake", 1.0);
         movement(1, driveSpeed, "forward");
         for(int i = 0; i < 3; i++) {
             arm("down", armDownTime);
+            wiggle();
             movement(0.5, driveSpeed, "backward");
             arm("up", armUpTime);
             movement(0.5, driveSpeed, "forward");
-
         }
     }
     private void goBackToStart(){
@@ -124,8 +134,8 @@ public class RDL_Auto extends LinearOpMode {
         }
 
         setAllModes(DcMotor.RunMode.RUN_TO_POSITION);
-        RDLHardware.frontRightWheel.setPower(1.5 * speed);
-        RDLHardware.frontLeftWheel.setPower(1.5 * speed);
+        RDLHardware.frontRightWheel.setPower(speed);
+        RDLHardware.frontLeftWheel.setPower(speed);
         RDLHardware.backRightWheel.setPower(speed);
         RDLHardware.backLeftWheel.setPower(speed);
 

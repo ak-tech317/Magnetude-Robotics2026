@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.RDL_2026;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,7 +23,7 @@ public class RDLHardware {
     public DcMotor backestClaw;
     public DcMotor armMotor;
 
-    public Servo armHolder;
+    public CRServo armHolder;
 
 
     public void init(HardwareMap hwMap) {
@@ -35,6 +36,8 @@ public class RDLHardware {
         backestClaw = hwMap.get(DcMotor.class, "backestClaw");
         frontClaw = hwMap.get(DcMotor.class, "frontClaw");
         armMotor = hwMap.get(DcMotor.class, "armMotor");
+
+        armHolder = hwMap.get(CRServo.class, "armHolder");
 
         setWheelDirections();
         setArmDirection();
