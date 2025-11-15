@@ -45,10 +45,27 @@ public class RDL_Auto extends LinearOpMode {
 
 
             //Ball collection command
+            telemetry.addLine("Spinning left");
+            telemetry.update();
+            sleep(500);
+
             clawRuntime.reset();
-            extend();
-            goToWheel();
-            ballCollection();
+            turn(360, turnSpeed, "left");
+            sleep(1000);
+            turn(360, turnSpeed, "right");
+            sleep(1000);
+
+            telemetry.addLine("Spinning right");
+            telemetry.update();
+            sleep(500);
+            turn(360, turnSpeed, "right");
+            sleep(1000);
+            turn(360, turnSpeed, "left");
+            sleep(1000);
+
+//            extend();
+//            goToWheel();
+//            ballCollection();
             //goBackToStart();
 
             //Autonomous complete
